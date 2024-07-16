@@ -1,17 +1,17 @@
 // 0 = Rock, 1 = Paper, 2 = Scissors
 
-// VARIABLE DECLARATIONS
-let computerSelection = getComputerChoice();
-let humanSelection = getHumanChoice();
-let humanScore = 0;
-let computerScore = 0;
+// VARIABLE INITIALIZATION
+let computerSelection;
+let humanSelection;
+var humanScore = 0;
+var computerScore = 0;
 
 // generates a random number from 0 to 2
 function randomizedChoice() {
     return Math.floor( Math.random() * 3 );
 }
 
-// returns a random number
+// returns a random computer number
 function getComputerChoice() {
     return randomizedChoice();
 }
@@ -23,7 +23,6 @@ function getHumanChoice() {
     let translated = translateHumanChoice( humanChoice );
     return translated;
 }
-// NOTE: make the prompt insist if user didn't put any choice
 
 // translates the worded choice into number for easier comparison
 function translateHumanChoice( humanChoice ) {
@@ -34,48 +33,80 @@ function translateHumanChoice( humanChoice ) {
             return 1;
         case 'scissors':
             return 2;
-        default:
+        case '':                    // no choice given
             return 3;
+        default:                    // cancel button was clicked
+            return 4;
     }
 }
 
-// checks the different scenarios for a player to win
-// each item will return show true if any of the condition
-// is correct
-const PLAYER_WIN_SCENARIOS = [
-    humanSelection === 0 && computerSelection === 2,
-    humanSelection === 1 && computerSelection === 0,
-    humanSelection === 2 && computerSelection === 1,
-]
+function playGame() {
+    let humanScore = 0;
+    let computerScore = 0;
+    let runningGame = 1;
+    let endRound;
+
+    while ( runningGame < 6 ) {
+        computerSelection = getComputerChoice();
+        humanSelection = getHumanChoice();
+
+        // if user didn't inputted any value
+        // it will end the entire game
+        if ( humanSelection === 3 || humanSelection === 4) {
+            break;
+        }
+
+        let roundNum = `Round ${runningGame}`;
+
+        // starts a round
+        let humanWin = playRound( humanSelection, computerSelection );
+        
+        console.log(roundNum);
+        if ( humanWin === 2 ) {         // DRAW
+            endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
+            console.log(endRound);
+        } else if ( humanWin ) {        // PLAYER WIN
+            ++humanScore;
+            endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
+            console.log(endRound);
+        } else {                        // COMPUTER WIN
+            ++computerScore;
+            endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
+            console.log(endRound);
+        }
+        
+        ++runningGame;
+    }
+}
 
 // plays one round
-function playRound( humanScore, humanSelection, computerScore, computerSelection ) {
+function playRound( humanSelection, computerSelection ) {
+    // checks the different scenarios for a player to win
+    // each item will return show true if any of the condition
+    // is correct
+    let playerWinScenarios = [
+        humanSelection === 0 && computerSelection === 2,
+        humanSelection === 1 && computerSelection === 0,
+        humanSelection === 2 && computerSelection === 1,
+        ]
 
     // reiterates through different scenarios a player might win
-    for (let i = 0; i < PLAYER_WIN_SCENARIOS.length; i++) {
-        if ( PLAYER_WIN_SCENARIOS[i] ) {
-            humanScore++;
-            let endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
-            console.log(endRound);
-            return;
+    for (let i = 0; i < playerWinScenarios.length; i++) {
+        if ( playerWinScenarios[i] ) {
+            // ++humanScore; 
+            return true;
         } 
     }
 
     // checks if there is a draw
     if ( humanSelection === computerSelection) {
-        let endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
-        console.log(endRound);
-        return;
+        return 2;
     }
 
     // if all cases are false, then it is automatically the computer's win
-    computerScore++;
-    let endRound = `Player: ${humanScore}\nComputer Score: ${computerScore}`;
-    console.log(endRound);
-    return;
+    // ++computerScore;
+    return false;
 }
 
-// starts a round
-playRound( humanScore, humanSelection, computerScore, computerSelection );
-console.log(humanSelection, computerSelection);
-
+// start game
+playGame();
